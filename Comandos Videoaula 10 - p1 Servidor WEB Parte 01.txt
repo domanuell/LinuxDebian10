@@ -1,0 +1,131 @@
+Comandos Videoaula 10 - Servidor WEB | Parte 01
+
+1 - Preparação da VM SRV-WWW:
+
+	# vim /etc/hostname
+	
+		www
+		
+	# vim /etc/hosts
+	
+		www.empresax.com.br		www
+		
+	# vim /etc/network/interfaces
+	
+		auto enp0s3
+		iface enp0s3 inet static
+		address 172.16.1.4
+		netmask 24
+		network 172.16.1.0
+		gateway 172.16.1.1
+		
+		iface enp0s3 inet6 static
+		address 2001:db8:acad:cafe::4
+		netmask 64
+		
+	# reboot
+		
+	
+	# ip a
+	
+	# ping 8.8.8.8
+	
+	# ping www.google.com
+	
+	# cat /etc/resolv.conf
+	
+		nameserver 172.16.1.2
+		
+		
+2 - Ajustes dos servidores DNS e Firewall
+
+- SRV-Firewall
+
+	# vim /etc/firewall/rules
+	
+		iptables -t nat -A PREROUTING -p tcp -s 0/0 -d 192.168.X.X --dport 22004 -j DNAT --to 172.16.1.4:22
+		iptables -t filter -A FORWARD -p tcp -s 0/0 -d 172.16.1.4 --dport 22 -j ACCEPT
+		
+	# systemctl restart firewall
+*************************************************************************************************************
+	
+- SRV-NS1
+
+	# vim /var/cache/bind/db.empresax.com.br
+	
+		www		IN		A		172.16.1.4
+		www		IN		AAAA	2001:db8:acad:cafe::4
+*********************************************************************
+	# vim /var/cache/bind/db.1.16.172
+	
+		4		IN		PTR		www.empresax.com.br.
+********************************************************************
+	# var/cache/bind/db.empresax.reverse.ipv6
+	
+		4.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0		IN	PTR		www.empresax.com.br.
+***************************************************************************	
+	# systemctl restart bind9
+	# host www.empresax.com.br
+	# host 172.16.1.4
+	# ping www.empresax.com.br
+	
+
+3 - Configurações do Servidor WEB
+
+	# host www.empresax.com.br
+	
+	# wget --no-check-certificate encurtador.com.br/bguzN -O template.tar.bz2
+	
+	# ls
+	
+	# apt update
+	
+	# apt install apache2
+	
+	# a2dissite 000-default
+	
+	# systemctl reload apache2
+	
+	# vim /etc/apache2/sites-available/empresax.com.br.conf
+	
+		<VirtualHost *:80>
+			ServerAdmin	webmaster@empresax.com.br
+			ServerName	empresax.com.br
+			ServerAlias	www.empresax.com.br
+			DocumentRoot /var/www/empresax.com.br/public_html
+			ErrorLog /var/log/apache2/error-empresax.com.br.log
+			CustomLog /var/log/apache2/access.log combined
+			
+			<Directory "/var/www/empresax.com.br">
+				Order allow,deny
+				Allow from all
+			</Directory>
+		</VirtualHost>
+		
+		
+	# a2ensite empresax.com.br
+	
+	# mkdir -p /var/www/empresax.com.br/public_html
+	
+	# tar xvf template.tar.bz2 -C /var/www/empresax.com.br/public_html/
+	
+	# chown -R www-data:www-data /var/www/empresax.com.br/
+	
+	# apachectl configtest
+	
+	# systemctl reload apache2
+			
+	# systemctl status apache2
+	
+	
+4 - Testes de funcionamento
+
+	# vim /etc/apache2/conf-available/charset.conf
+	
+	Descomentar a linha #AddDefaultCharset UTF-8
+	
+	# systemctl restart apache2	
+		
+	
+	
+	

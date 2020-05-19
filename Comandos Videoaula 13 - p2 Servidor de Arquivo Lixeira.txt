@@ -1,0 +1,50 @@
+Comandos Videoaula 13 - Parte 2 - Servidor de Arquivo | Lixeira
+ 
+1 - Ativar a Lixeira do Samba4
+
+
+    # vim /usr/local/samba/etc/smb.conf 
+	
+		#Lixeira
+	 
+			vfs objects = recycle
+			recycle:priority = NOTICE
+			recycle:facility = LOCAL1
+			recycle:maxsize = 0 		 
+			recycle:directory_mode = 0744
+			recycle:subdir_mode = 0744
+			recycle:keeptree = true
+			recycle:touch = true
+			recycle:versions = true
+			recycle:repository = /empresax/Recycle/ 
+			recycle:exclude = *.tmp, *.log, *.exe
+			recycle:exclude_dir = tmp, temp, cache
+			create mask = 0 744
+			directory mask = 0744
+
+	# testparm
+
+	# systemctl restart samba4 
+	
+	# systemctl status samba4 
+
+	
+2 -  Compartilhar a Lixeira com os Usuários
+
+    # vim /usr/local/samba/etc/smb.conf 
+	
+		[Lixeira]
+			path = /empresax/Recycle/%U
+			browseable = no
+			writeable = yes
+		
+		
+	Alterar:
+		
+			recycle:repository = /empresax/Recycle/%U 
+	
+	
+	
+	# systemctl restart samba4 
+	
+	# systemctl status samba4 

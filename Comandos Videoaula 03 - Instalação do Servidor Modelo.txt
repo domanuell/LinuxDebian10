@@ -1,0 +1,66 @@
+Partições do Sistemas
+
+1 / - Raiz do Sistema (deve dar sempre o maior tamanho de todas partições) 
+	= Partição primaria -> Inicio do Disco -> sistema de arquivo: ext4
+2 /home  - Área de troca = Partição Logica -> no inicio do Disco
+3 Swap- Diretorios dos usuarios: artição Logica -> Sistema de arqui swap 
+	Obs: o tamanho da Swap de pende da memoria, imaginemos que tens 4G de RAM então a SWAP tem de ter 3G
+	
+
+*********************************************************
+- Ajustar as configurações de rede;
+nano /etc/network/interfaces
+
+	# The primary network insterface
+	allow-hotplug enp0s3
+	iface enp0s3 inet dhcp
+	
+Trocar as configurações para:
+
+# The primary network insterface
+	auto enp0s3
+	iface enp0s3 inet static
+	address 192.168.1.10
+	netmask 24
+	network 192.168.1.0
+	gateway 192.168.1.1
+	
+Depois de fazer alteração na interface, digite o seguinte comando:
+ip address flush enp0s3
+ifdown enp0s3 
+ifup enp0s3
+
+Se não resolver nome/DNS:
+
+nano /etc/resolv.conf 
+	
+
+- Ajustar as configurações dp gerenciador de pacotes;
+
+Repositorios: APT - Advanced Packaging Tool
+
+Editar repositorio
+nano /etc/apt/sources.list
+
+deb http://deb.debian.org/debian/ buster main
+deb-src http://deb.debian.org/debian/ buster main
+
+deb http://security.debian.org/debian-security buster/updates main
+deb-src http://security.debian.org/debian-security buster/updates main
+
+# buster-updates, previously known as 'volatile'
+deb http://deb.debian.org/debian/ buster-updates main
+deb-src http://deb.debian.org/debian/ buster-updates main
+
+
+- instalar os pacotes básisco;
+
+apt install vim
+apt install make gcc g++
+apt install openssh-server htop
+
+Depois de tudo preparado vamos deligar a maquina
+shutdown -h now
+
+
+- Criar o primeiro clone.

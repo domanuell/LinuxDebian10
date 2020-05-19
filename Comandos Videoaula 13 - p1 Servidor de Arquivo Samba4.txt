@@ -1,0 +1,103 @@
+Comandos Videoaula 13 - Servidor de Arquivo | Samba4 
+
+1 - Criandor a estrutura de diretórios a serem compartilhados
+
+	# vim /etc/fstab
+	
+	# mkdir /empresax
+	
+	# mkdir /empresax/usuarios
+	
+	# mkdir /empresax/compartilhamentos
+	
+	# mkdir /empresax/compartilhamentos/setores
+	
+	# mkdir /empresax/compartilhamentos/sistemas
+	
+	# mkdir /empresax/compartilhamentos/publico
+	
+	# mkdir /empresax/compartilhamentos/setores/vendas
+	
+	# mkdir /empresax/compartilhamentos/setores/compras
+	
+	# mkdir /empresax/compartilhamentos/setores/diretoria
+	
+	# mkdir /empresax/compartilhamentos/setores/informatica
+	
+	# chmod -R 775 /empresax/*
+	
+	# chgrp -R users /empresax/*
+	
+	
+2 - Configurar e testar os compartilhamentos
+
+	# vim /usr/local/samba/etc/smb.conf
+	
+	
+		[sysvol]
+				path = /usr/local/samba/var/locks/sysvol
+				read only = No
+
+		[Setores]
+				comment = Compartilhamento de setores
+				path = /empresax/compartilhamentos/setores
+				read only = No
+
+		[Publico]
+				comment = Compartilhamento publico
+				path = /empresax/compartilhamentos/publico
+				read only = No
+
+	# testparm
+
+	# smbcontrol all reload-config
+	
+	# systemctl status samba4
+
+
+3 - Compartilhando as pastas dos usuários
+
+	# vim /usr/local/samba/etc/smb.conf
+	
+		[home]
+			path = /empresax/usuarios
+			browseable = no
+			create mask = 0700
+			directory mask = 0700
+			read only = No
+
+	
+	# smbcontrol all reload-config
+
+
+	
+5 - Gerenciando as políticas de senha do samba4
+
+	# samba-tool domain passwordsettingis show
+	
+	# samba-tool domain passwordsettings set --complexity=off
+	
+	# samba-tool domain passwordsettingis show
+	
+	# samba-tool domain passwordsettings --min-pwd-lenght=0
+
+	# samba-tool domain passwordstthings show
+
+	# samba-tool domain passwordsettings --min-pwd-lenght=5
+	
+	# samba-tool domain passwordstthings show
+	
+	# samba-tool domain passwordsettings set --min-pwd-length=0
+	
+	# samba-tool domain passwordsettings set --max-pwd-length=0
+	
+	# samba-tool domain passwordstthings show
+	
+	# samba-tool user setexpiry usuario --noexpiry
+		
+	# samba-tool user setexpiry usuario --days=10
+
+	
+	
+	
+	

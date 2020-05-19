@@ -1,0 +1,94 @@
+Comandos Videoaula 11 - Servidor Samba4 | Parte 01
+
+1 - Preparação da VM SRV-SMB:
+
+	# vim /etc/hostname
+	
+		samba4
+		
+	# vim /etc/hosts
+	
+		samba4.empresax.com.br		samba4
+		
+	# vim /etc/network/interfaces
+	
+		auto enp0s3
+		iface enp0s3 inet static
+		address 172.16.1.5
+		netmask 24
+		network 172.16.1.0
+		gateway 172.16.1.1
+		
+		iface enp0s3 inet6 static
+		address 2001:db8:acad:cafe::5
+		netmask 64
+		
+	# reboot
+		
+	
+	# ip a
+	
+	# ping 8.8.8.8
+	
+	# ping www.google.com
+	
+		
+  - SRV-Firewall
+
+	# vim /etc/firewall/rules
+	
+		iptables -t nat -A PREROUTING -p tcp -s 0/0 -d 192.168.X.X --dport 22005 -j DNAT --to 172.16.1.5:22
+		iptables -t filter -A FORWARD -p tcp -s 0/0 -d 172.16.1.5 --dport 22 -j ACCEPT
+		
+	# systemctl restart firewall
+	
+	
+2 - Instalação do Samba4
+
+	# apt update
+	
+	# apt install acl attr autoconf bind9utils bison build-essential \
+	debhelper dnsutils docbook-xml docbook-xsl flex gdb libjansson-dev krb5-user libacl1-dev \
+	libaio-dev libarchive-dev libattr1-dev libblkid-dev libbsd-dev libcap-dev libcups2-dev \
+	libgnutls28-dev libgpgme-dev libjson-perl libldap2-dev libncurses5-dev libpam0g-dev \
+	libparse-yapp-perl libpopt-dev libreadline-dev nettle-dev perl perl-modules pkg-config \
+	python-all-dev python-crypto python-dbg python-dev python-dnspython python3-dnspython \
+	python-gpg python3-gpg python-markdown python3-markdown python3-dev xsltproc \
+	zlib1g-dev liblmdb-dev lmdb-utils 
+
+
+	# vim /etc/fstab
+	
+		,acl,user_xattr,barrier=1
+		
+	# mount -o remount /
+	
+	# mount -o remount /home
+	
+	# touch test.txt
+
+    # setfattr -n user.test -v test test.txt
+
+	# setfattr -n security.test -v test2 test.txt
+	
+	# getfattr -d test.txt
+	
+	# getfattr -n security.test -d test.txt
+	
+	# cd /usr/src
+
+	# wget https://download.samba.org/pub/samba/samba-latest.tar.gz
+
+	# tar xzvf samba-latest.tar.gz
+
+	# ls
+
+	# cd samba-4.XX.X (substituir os "x" pela versão baixada)
+	
+	# ./configure --enable-debug --enable-selftest --with-systemd
+
+	# make
+
+	# make install
+	
+	

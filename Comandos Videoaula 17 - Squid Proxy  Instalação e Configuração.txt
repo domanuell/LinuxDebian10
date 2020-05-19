@@ -1,0 +1,79 @@
+Comandos Videoaula 17 - Squid Proxy - Instalação e Configuração
+
+1 - Instalação o Squid
+
+	# vim /etc/firewall/rules
+
+		### Libera acesso ao Proxy
+		iptables -t filter -A INPUT -p tcp --dport 3128 -s 172.16.1.0/24 -j ACCEPT
+
+
+	# systemctl retart firewall
+
+
+	# apt update
+
+	# apt install squid
+
+2 - Baixando o arquivo de configuração e conhecendo suas principais funcionalidades 
+
+	# wget --no-check-certificate encurtador.com.br/bhkYZ -O squid.conf
+
+	# mv /etc/squid/squid.conf /etc/squid/squid.conf.bkp
+
+	# cp squid.conf /etc/squid/
+
+	# vim /etc/squid/squid.conf
+
+	# systemctl restart squid
+
+	# systemctl status squid
+
+3 - Configurarando o cliente e testaando o acesso via proxy
+
+	ip: 172.16.1.1	porta: 3128
+
+4 - Conhecendo as principais Listas de Controle de Acesso
+
+
+	# mkdir /etc/squid/acls/
+
+	# vim /etc/squid/acls/mac_bloqueados
+
+	# vim /etc/squid/squid.conf
+	
+		acl mac arp "/etc/squid/acls/mac_bloqueados"
+		http_access deny mac
+
+	# systemctl reload squid
+
+
+
+	# vim /etc/squid/acls/ip_bloqueados
+
+	# vim /etc/squid/squid.conf
+
+		acl bloqip src "/etc/squid/acls/ip_bloqueados"
+		http_access deny bloqip
+
+	# systemctl reload squid
+
+		
+	# vim /etc/squid/acls/palavras_bloqueadas
+
+	# vim /etc/squid/squid.conf
+
+		acl bloqlist url_regex "/etc/squid/acls/palavras_bloqueadas"
+		http_access deny bloqlist
+
+	# systemctl reload squid
+
+
+	# vim /etc/squid/acls/url_bloqueadas
+
+	# vim /etc/squid/squid.conf
+
+		acl bloqurl dstdomain "/etc/squid/acls/url_bloqueadas"
+		http_access deny bloqurl
+
+	# systemctl reload squid

@@ -1,0 +1,73 @@
+Comandos Videoaula 08 - Servidor DNS | Parte 02
+
+
+
+	# host www.google.com.br (mapeamento direto)
+	
+	# host 216.58.202.131 (mapeamento reverso)
+	
+	# host 8.8.8.8
+	
+	
+1 - Configuração do Bind 9	
+
+	# vim /etc/resolv.conf
+	
+		search empresax.com.br
+		nameserver 127.0.0.1
+	
+	# ls
+	
+	# cd dns
+	
+	# ls /etc/bind
+	
+	# cp named.conf.options /etc/bind
+		
+	# vim /etc/bind/named.conf.options
+**********************************************************
+	
+	# cp named.conf.local /etc/bind
+	
+	# vim /etc/bind/named.conf.local
+	
+	# named-checkconf
+************************************************************
+	
+	# cp db.empresax.com.br /var/cache/bind/
+	
+	# head /etc/bind/named.conf.options
+	
+	# vim /var/cache/bind/db.empresax.com.br
+************************************************************
+	
+	# cp db.1.16.172 /var/cache/bind/
+	
+	#vim /var/cache/bind/db.1.16.172
+
+	# named-checkzone empresax.com.br /var/cache/bind/db.empresax.com.br
+************************************************************	
+	
+	# systemctl restart bind9
+	
+	# systemctl status bind9
+	
+	# host ns1.empresax.com.br
+	
+	# host firewall.empresax.com.br
+	
+	# host dhcp.empresax.com.br
+*********************************************************************
+	
+2 - Teste VM Cliente Linux
+
+	# vim /etc/resolv.conf
+	
+		search empresax.com.br
+		nameserver 172.16.1.2
+		
+	# host ns1.empresax.com.br
+	
+	# host firewall.empresax.com.br
+	
+	# ping firewall.empresax.com.br

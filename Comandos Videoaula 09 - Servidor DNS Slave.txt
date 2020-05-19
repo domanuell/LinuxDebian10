@@ -1,0 +1,168 @@
+Comandos Videoaula 9 - Servidor DNS Slave
+
+1 - Ajustes da VM SRV-NS2:
+
+	# vim /etc/hostname
+	
+		ns2
+		
+	# vim /etc/hosts
+	
+		ns2.empresax.com.br		ns2
+		
+	# vim /etc/network/interfaces
+	
+		auto enp0s3
+		iface enp0s3 inet static
+		address 172.16.1.3
+		netmask 24
+		network 172.16.1.0
+		gateway 172.16.1.1
+		
+		iface enp0s3 inet6 static
+		address 2001:db8:acad:cafe::3
+		netmask 64
+		
+	# reboot
+		
+	# ping 8.8.8.8
+	
+	# ping www.google.com
+	
+		
+  - Ajustes do servidor SRV-Firewall
+
+	# vim /etc/firewall/rules
+	
+		iptables -t nat -A PREROUTING -p tcp -s 0/0 -d 192.168.X.X --dport 22003 -j DNAT --to 172.16.1.3:22
+		iptables -t filter -A FORWARD -p tcp -s 0/0 -d 172.16.1.3 --dport 22 -j ACCEPT
+		
+	# systemctl restart firewall
+	
+	
+  - SRV-NS2 - Instalação do Bind9
+  
+	# apt update
+	# apt install bind9
+	
+	
+  
+2 - Ajustes do DNS Primário (SRV-NS1)
+
+	# vim /etc/bind/named.conf.local
+
+	# vim /var/cache/bind/db.empresax.com.br
+	
+		@		IN		NS		ns2.empresax.com.br.
+		
+		ns2		IN		A		172.16.1.3
+		ns2		IN		AAAA	2001:db8:acad:cafe::3
+		
+	# vim /var/cache/bind/db.1.16.172
+	
+		@		IN		NS		ns2.empresax.com.br.
+		
+		3		IN		PTR		ns2.empresax.com.br.
+		
+	# var/cache/bind/db.empresax.reverse.ipv6
+	
+		@		IN		NS		ns2.empresax.com.br.
+		
+		3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0		IN	PTR		ns2.empresax.com.br.
+		
+	# systemctl restart bind9
+	# systemctl status bind9
+	# host ns2.empresax.com.br
+	# host -t NS empresax.com.br
+
+  - SRV-NS2 - Teste resolução de nome
+  
+	# cat /etc/resolv.conf
+	# host ns2.empresax.com.br
+	
+
+3 - Configuração do Servidor DNS Secundário
+
+	# vim /etc/bind/named.conf.local
+	
+		zone "empresax.com.br" {
+			type slave;
+			file "db.empresax.com.br";
+			masters {172.16.1.2;};
+		};
+		
+		zone "1.16.172.in-addr.arpa" IN {
+			type slave;
+			file "db.1.16.172";
+			masters {172.16.1.2;};
+		};
+	
+	# named-checkconf
+	
+	# systemctl restart bind9
+	
+	# systemctl status bind9
+	
+	# ls /var/cache/bind
+	
+	# vim /etc/bind/named.conf.local
+	
+		zone "e.f.a.c.d.a.c.a.8.b.d.0.1.0.0.2.ip6.arpa" {
+			type slave;
+			file "db.empresax.reverse.ipv6";
+			masters {2001:db8:acad:cafe::2;};
+		};
+		
+	# named-checkconf
+	
+- SRV-NS1 - Ajuste DNS reverso
+
+	# vim /etc/bind/named.conf.local
+	
+		allow-transfer {2001:db8:acad:cafe::3; };
+		notify yes;
+		also-notify {2001:db8:acad:cafe::3; };
+	
+	# named-checkconf
+	
+	# systemctl restart bind9
+	
+- SRV-NS2 - Teste transferência de zona
+
+	# named-checkconf
+	
+	# systemctl restart bind9
+	
+	# systemctl status bind9
+	
+	# ls /var/cache/bind
+	
+4 - Teste de redundância do serviço VM WS-Linux
+
+	$ su -
+	
+	# vim /etc/resolv.conf
+	
+		#nameserver 172.16.1.2
+		nameserver 172.16.1.3	
+
+	# host firewall.empresax.com.br
+	
+	# host ns1.empresax.com.br
+	
+	# host ns2.empresax.com.br
+	
+	# vim /etc/resolv.conf
+	
+		nameserver 172.16.1.2
+		nameserver 172.16.1.3	
+		
+	# apt instal dnsutils
+	
+	# nslookup firewall.empresax.com.br
+	
+	# nslookup firewall.empresax.com.br
+	
+	# nslookup ns1.empresax.com.br
+	
+	# nslookup 172.16.1.1

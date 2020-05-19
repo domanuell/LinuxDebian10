@@ -1,0 +1,124 @@
+Comandos Videoaula 11 - Servidor Samba4 | Parte 02
+
+1 -  Configuração do Samba4
+
+	# vim /root/.bashrc
+
+		export PATH=$PATH:/usr/local/samba/sbin:/usr/local/samba/bin
+		
+	# export PATH=$PATH:/usr/local/samba/sbin:/usr/local/samba/bin
+	
+	
+	# samba-tool domain provision --server-role=dc --use-rfc2307 --dns-backend=SAMBA_INTERNAL \ 
+	--realm=EMPRESA.COM.BR --domain=EMPRESA --adminpass=Pa$$w0rd --option="interfaces=lo eth0" \
+	--option="bind interfaces only=yes"
+	
+	# samba
+	
+	# samba -V
+	
+	# smbclient --version
+	
+	# vim /etc/resolv.conf
+	
+		domain empresa.com.br
+		search empresa.com.br
+		nameserver 127.0.0.1
+		
+	# vim /usr/local/samba/etc/smb.conf
+
+		allow dns updates = nonsecure and secure
+
+	# testparm
+	
+	# host -t SRV _ldap._tcp.empresa.com.br.
+
+	# host -t SRV _kerberos._udp.empresa.com.br.
+	
+	# host -t A samba4.empresa.com.br
+	
+	# vim /etc/systemd/system/samba4.service
+	
+		[Unit]
+			
+			Description=Samba Active Directory Domain Controller
+			After=network.target remote-fs.target nss-lookup.target
+		
+		[Service]
+		
+			Type=forking
+			ExecStart=/usr/local/samba/sbin/samba -D
+			PIDFile=/usr/local/samba/var/run/samba.pid
+		
+		[Install]
+		
+			WantedBy=multi-user.target
+	
+	 
+	# systemctl daemon-reload
+	
+	
+	# systemctl enable samba4
+	
+	
+	# systemctl restart samba4
+	
+	# systemctl stop samba4
+	
+	# ps aux | grep samba
+	
+	# systemctl start samba4
+	
+	# ps aux | grep samba
+	
+	# samba-tool user setpassword Administrator
+	
+	# smbclient //localhost/netlogon -UAdministrator%'Pa$$w0rd' -c "ls"
+
+
+2 - Configuração do servidor NTP
+
+	# apt-get install ntp
+	
+	# chown root:ntp /usr/local/samba/var/lib/ntp_signd/
+	
+	# chmod 750 /usr/local/samba/var/lib/ntp_signd/
+	
+	# vim /etc/ntp.conf
+	
+		#Relogio Local
+		server 127.127.1.0
+		fudge 127.127.1.0 stratum 10
+
+		#Configurações adicionais para o Samba 4
+		ntpsigndsocket /usr/local/samba/var/lib/ntp_signd/
+		restrict default mssntp
+		disable monitor
+	
+	# systemctl restart ntp
+
+	# systemctl status ntp
+
+	
+3 - Configuração do Kerberos
+
+	# ln -sf /usr/local/samba/share/setup/krb5.conf /etc/krb5.conf
+
+	# vim /etc/krb5.conf 
+	
+		[libdefaults]
+			default_realm = EMPRESA.COM.BR
+			dns_lookup_realm = false 
+			dns_lookup_kdc = true
+			
+	# kinit administrator
+	
+	# klist
+
+
+Links para dowload do RSAT:
+• Windows 10:  https://www.microsoft.com/pt-br/download/details.aspx?id=45520
+• Windows 8.1: http://www.microsoft.com/en-us/download/details.aspx?id=39296
+• Windows 8:   http://www.microsoft.com/en-us/download/details.aspx?id=28972
+• Windows 7:   http://www.microsoft.com/en-us/download/details.aspx?id=7887
+	

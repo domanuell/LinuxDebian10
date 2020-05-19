@@ -1,0 +1,79 @@
+- Ajustar as Configurações da VM ou Serv-Firewall:
+
+altera o nome do servidor
+	vim /etc/hostname
+
+ajustar a rede do firewall
+	vim /etc/network/interfaces
+	
+	IPV4 - adicionar a placa secundaria de rede:
+		auto enp0s8
+		address 172.16.1.1
+		netmask 24
+		network 172.16.1.0
+	
+	IPv6 - adicionar na mesma LAN
+		iface enp0s8 inet6 static
+		address 2001:db8:acad:cafe::1
+		netmask 64
+		
+	ip addr flush enp0s8
+	ifdown enp0s8
+	ifup enp0s8
+		
+se naõ resolver reinicair com o comando:		reboot
+		
+		
+
+
+- Ajustar as Configurações de Rede da VM Cliente Linux:
+
+ajustar a rede do Cliente Debian
+	vim /etc/network/interfaces
+	
+	IPV4 - adicionar a placa secundaria de rede:
+		auto enp0s3
+		address 172.16.1.100
+		netmask 24
+		network 172.16.1.0
+	
+	IPv6 - adicionar na mesma LAN
+		iface enp0s8 inet6 static
+		address 2001:db8:acad:cafe::100
+		netmask 64
+		
+	Resolver DNS
+		nano /etc/resolv.conf
+		
+		domain home.lan
+		search home.lan
+		nameserver 192.168.1.1
+	Reiniciar a interface de rede para ativar a nova configuração.
+
+		ip addr flush enp0s8
+		ifdown enp0s8
+		ifup enp0s8
+		
+Em alguns casos poderá ter que reiniciar o sistema para que a configuração de rede tenha efeito:
+
+		
+	reboot
+		
+- Ajustar as Configurações da Rede VM Cliente Windows:
+
+****
+- Compartilhar a internet com a Rede Local Virtualizada:
+
+ablitar o nat
+	iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE
+	
+	ablitar o reencaminhamento (forward)
+	echo 1 > /proc/sys/net/ipv4/ip_forward
+	
+	ativar o Forward permanente
+		vim /etc/sysctl.conf
+		remover o comentario na linha net.ipv4.ip_forward=1
+	validar se a regra foi ablitada: iptables -t nat -L
+			deve aparecer esta opção: MASQUERADE  all  --  anywhere             anywhere
+
+

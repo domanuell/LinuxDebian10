@@ -1,0 +1,48 @@
+- Configurar o OpenSSH Server
+
+apt install openssh-server
+ss -aut
+ls /etc/ssh
+
+Editar o SSH  Server:
+	vim /etc/ssh/sshd_connfig
+	
+editar a seguintes linhas: 
+ativar a porta ssh, descomentar a linha #Port 22 para 22001
+	Opcional - descomentar a linha #ListenAddress 172.16.1.1
+	Opcional - descomentar a linha #ListenAddress 2001:db8:acad:cafe::1
+
+Editar a linha #LoginGraceTime 2m para LoginGraceTime 60
+Editar a linha #PermitRootLogin prohibit-password para PermitRootLogin no
+adicionar a seguinte linha AllowUsers domanuel
+
+Exemplos de linha que podemos adicionar:
+						#AllowGroups TI
+						#DenyUsers [Usuarios]
+						#DenyGroups [nome:do_grupo]
+						
+	Editar as seguintes linhas:
+	Opcional --- ClientAliveInterval 0 -> 300
+	Opcional --- ClientAliveCountMax 3 -> 0
+	
+	Adicionar a seguinte linha:
+		Banner /etc/issue.net
+
+Editar o arquivo Banner:
+	vim /etc/issue.net 
+	
+	systemctl restart ssh
+	systemctl status ssh
+	ou ss -aut
+	
+entrar via ssh no terminal linux
+		ssh -p 22001 domanuel@172.16.1.1
+enviar via SCP no terminal linux	
+	scp -P 22001 teste.txt domanuel@172.16.1.1:/tmp 
+	
+bscar um arquivo no servidor via scp:
+	scp -P 22001 domanuel@172.16.1.1:/tmp/teste2.txt .
+
+
+- Conectar o Servidor a Partir dos Aplicativos Cliente
+- Aprender a Utilizar o SCP

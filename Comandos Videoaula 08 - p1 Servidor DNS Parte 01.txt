@@ -1,0 +1,57 @@
+﻿Comandos Videoaula 8 - Servidor DNS | Parte 01
+
+1 - Ajustes da VM SRV-NS1:
+
+	# vim /etc/hostname
+	
+		ns1
+		
+	# vim /etc/hosts
+	
+		ns1.empresax.com.br		ns1
+		
+	# vim /etc/network/interfaces
+	
+		auto enp0s3
+		iface enp0s3 inet static
+		address 172.16.1.2
+		netmask 24
+		network 172.16.1.0
+		gateway 172.16.1.1
+		
+		iface enp0s3 inet6 static
+		address 2001:db8:acad:cafe::2
+		netmask 64
+		
+	# reboot
+		
+	# ip a
+
+	# ping 8.8.8.8
+	
+	# ping www.google.com
+	
+		
+  - Ajustes do servidor SRV-Firewall
+
+	# vim /etc/firewall/rules
+	
+		iptables -t nat -A PREROUTING -p tcp -s 0/0 -d 192.168.X.X --dport 22002 -j DNAT --to 172.16.1.2:22
+		iptables -t filter -A FORWARD -p tcp -s 0/0 -d 172.16.1.2 --dport 22 -j ACCEPT
+		
+	# systemctl restart firewall
+	
+	
+1 - SRV-NS1 - Instalação do Bind9
+  
+	# apt update
+	# apt install bind9
+
+2 - SRV-NS1 - Download dos arquivos pré-compilados
+	
+	# wget --no-check-certificate encurtador.com.br/mruzU -O dns1.tar.gz
+	
+	# ls
+
+	# tar xvf dns1.tar.gz
+	

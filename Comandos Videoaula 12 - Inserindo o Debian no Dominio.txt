@@ -1,0 +1,131 @@
+Comandos Videoaula 12 - Inserindo o Debian no Dominio
+
+
+
+- Ajustes Servidor DHCP
+
+	$ ssh -p 22001 usuario@172.16.1.1
+	
+	$ su -
+	
+	# vim /etc/dhcp/dhcpd.conf
+	
+		172.16.1.5
+		
+	# systemctl restart isc-dhcp-server
+	
+	# exit
+	
+	$ exit
+	
+	$ su -
+	
+	# dhclient -r
+	
+	# dhclient -v
+	
+	# cat /etc/resolv.conf
+	
+	# cat /etc/hosts
+	
+	# ping 8.8.8.8
+	
+	# ping www.google.com
+	
+	
+1 - Inslação das dependências
+	
+	# apt update
+	
+	# apt install krb5-user krb5-config winbind samba samba-common smbclient \
+	cifs-utils libpam-krb5 libpam-winbind libnss-winbind ntp
+
+	
+	
+2 - Download dos arquivos pré-configurados
+	
+	# wget --no-check-certificate encurtador.com.br/dqx47 -O join-ads.tar.gz
+	
+	# ls
+	
+	# tar xvf join-ads.tar.gz
+	
+		
+	
+	- Configuração do NTP
+
+	# vim /etc/ntp.conf
+	
+		# pool 0.debian.pool.ntp.org iburst
+		# pool 1.debian.pool.ntp.org iburst
+		# pool 2.debian.pool.ntp.org iburst
+		# pool 3.debian.pool.ntp.org iburst
+		
+		server 172.16.1.5
+		restrict 172.16.1.5
+	
+	# systemctl restart ntp
+	
+3 - Configuração do Kerberos e do Samba
+
+	# cd join-ads
+	
+	# ls
+	
+	# cp krb5 /etc/
+	
+	# vim /etc/krb5
+	
+	# kinit administrator
+	
+	# klist
+	
+	# ls
+	
+	# cp smb.conf /etc/samba
+	
+	# vim /etc/samba/smb.conf
+	
+	# systemctl restart winbind
+	
+	# systemctl restart smbd
+	
+	# vim /etc/samba/smb.conf
+	
+		security = user
+		
+	# systemctl restart winbind
+	
+	# systemctl restart smbd
+	
+	# vim /etc/samba/smb.conf
+	
+		security = ads
+		
+	# systemctl restart smbd
+	
+4 - Inserindo  estação de trabalho no domínio
+
+	# net ads join -U administrator
+	
+	# net ads testjoin
+
+	# wbinfo -t
+	
+	# wbinfo -u
+	
+	# wbinfo -g
+	
+	# vim /etc/nsswitch.conf
+	
+		passwd: file systemd winbind
+		group: file systemd winbind
+		
+	# vim /etc/pam.d/common-session
+	
+		session required pam_mkhomedir.so umask=0022 skel=/etc/skel
+	
+	# reboot
+	
+	
+	

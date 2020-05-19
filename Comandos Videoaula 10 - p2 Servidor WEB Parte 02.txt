@@ -1,0 +1,97 @@
+Comandos Videoaula 10 - Servidor WEB | Parte 02
+
+
+
+1 - Ha bilitando e configurando as páginas pessoais:
+
+	# ls /home/
+	
+	# mkdir /home/usuario/public_html
+	
+	# chmod 711 /home/usuario/
+	
+	# chmod 755 /home/usuario/public_html/
+	
+	# a2enmod userdir
+	
+	# systemctl restart apache2
+
+	# systemctl status apache2
+	
+	# wget --no-check-certificate encurtador.com.br/douzM -O template2.tar.bz2
+
+	# ls
+	
+	# tar xvf template2.tar.bz2 -C /home/usuario/public_html
+	
+	# ls /home/usuario/public_html
+	
+	# chown -R usuario:usuario /home/usuario/public_html
+*************************************************************************	
+	
+ - Ajuste servidor DNS (VM SRV-NS1)
+	
+				
+	# vim /var/cache/bind/db.empresax.com.br
+	
+		blog	IN	CNAME	www
+		
+	# systemctl restart bind9
+***********************************************************************	
+	
+- Retorne para a VM SRV-WWW
+		
+	# host blog.empresax.com.br
+	
+********************************************************************
+2 - Teste de acesso a página (VM Cliente Linux)
+
+	Acesse via navegador: http://blog.empresax.com.br/~usuario
+	
+*******************************************************************
+3 - Habilitando e configurando o acesso HTTPS
+
+	4 - Criando o certificado autoassinado
+		
+	# apt install openssl
+	
+	# mkdir /etc/apache2/ssl
+	
+	# openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/apache2/ssl/empresax.com.br.key -out /etc/apache2/ssl/empresax.com.br.crt
+	
+		País
+		Estado
+		Cidade
+		Empresa
+		Setor
+		Endereço página
+		E-mail administrador
+		
+	# ls /etc/apache2/ssl/
+	
+	# a2enmod ssl
+	
+	# systemctl restart apache2
+	
+	# vim /etc/apache2/sites-available/empresax.com.br.conf
+	
+		*:443>
+		
+		SSLEngine on
+		SSLCertificateFile /etc/apache2/ssl/empresax.com.br.crt
+		SSLCertificateKeyFile /etc/apache2/ssl/empresax.com.br.key
+		
+	# apachectl configtest
+	
+	# systemctl restart apache2
+	
+	# systemctl status apache2
+	
+	
+5 - Teste de acesso a página (VM Cliente Linux)
+
+	Acesse via navegador: https://www.empresax.com.br
+		
+		
+		
+

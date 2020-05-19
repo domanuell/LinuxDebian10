@@ -1,0 +1,39 @@
+Comandos Videoaula 18 - Implementando o WPAD
+
+1 - Ajuste do Firewall
+
+	# vim /etc/firewall/rules
+
+		### Libera acesso ao Servidor WEB local
+		iptables -t filter -A INPUT -p tcp --dport 80 -s 172.16.1.0/24 -j ACCEPT
+
+		### Libera consulta HTTP e HTTPS a partir da LAN
+		#iptables -A FORWARD -p tcp -m multiport -s 172.16.1.0/24 -d 0/0 --dport 80,443 -j ACCEPT
+
+
+	# systemctl restart firewall
+
+
+2 - Instalação do Apache
+
+	# apt update
+
+	# apt install apache2
+
+
+3 - Scrip de automatização
+
+	# vim  /var/www/html/wpad.dat
+
+
+	function FindProxyForURL(url, host)
+	{
+  		if (isPlainHostName(host)  ||
+    		isInNet(host, "172.16.1.0", "255.255.255.0") ||
+    		isInNet(host, "127.0.0.0", "255.0.0.0"))
+    		return "DIRECT";
+  		else
+    	return "PROXY 172.16.1.1:3128; DIRECT";
+	};
+
+

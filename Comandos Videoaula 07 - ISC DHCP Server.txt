@@ -1,0 +1,78 @@
+ISC DHCP Server 
+
+- Instalar o ISC DHCP Server
+
+
+apt update 
+apt install isc-dhcp-server radvd
+
+# Editar o aquivo dhcp-server
+vim /etc/default/isc-dhcp-server
+
+INTERFACESv4"" adicionar a interface que vai fazer DHCP INTERFACESv4"enp0s8"
+INTERFACESv6"" adicionar a interface que vai fazer DHCP INTERFACESv6"enp0s8"
+
+# Entrar no arquivo DHCP e fazer um backup
+vm /etc/dhcp/dhcpd.conf /etc/dhcp/dhcpd.bkp
+cp dhcpd.conf /etc/dhcpd/
+
+# agora vamos editar o arquivo dhcpd.conf
+vim /etc/dhcp/dhcpd.conf
+################################################################
+### Arquivo de configuração do dhcpdv4 ####
+
+# Esta é a linha que habilita a atualização dinâmica.
+ddns-update-style none;
+
+# Controla o tempo de renovação do IP, 600=10Min
+default-lease-time 600;
+
+# Tempo que a máquina pode usar um determinado IP
+max-lease-time 7200;
+
+#Indica que o servidor DHCP será autoritário em todo o seguimento da rede; 
+authoritative;
+
+#Rede a qual se aplica
+	subnet 172.16.1.0 netmask 255.255.255.0 {
+	range 172.16.1.10 172.16.1.99;
+
+#Gateway padrao
+	option routers 172.16.1.1;
+
+#Configuracoes de DNS
+	option domain-name-servers 8.8.8.8;
+
+#Endereço Broadcast
+	option broadcast-address 172.16.1.255;
+
+#Definicao de Horario 18000 = Brasil
+	option time-offset -18000;
+}
+
+
+#host ws-linux {
+#  hardware ethernet xx:xx:xx:xx:xx:xx;
+#  fixed-address 172.16.1.1;
+#}
+
+## subir o serviço DHCP
+systemctl start isc-dhcp-server
+systemctl status isc-dhcp-server
+
+#fazer os teste
+
+Depois de fazer faz o seguinte:
+head -40 /var/lib/dhcp/dhcpd.leases
+
+#Mapear ou dhcp por mac-address
+
+vim /etc/dhcp/dhcpd.conf
+
+host ws-linux
+	hardware ethernet 08:00:27:fc:4a:1e;
+	fixed-address172.16.1.100;
+	
+#Depois de fazer alteração
+
+systemctl restart isc-dhcp-server

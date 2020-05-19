@@ -1,0 +1,44 @@
+NetFilter - Iptables - FirewallD - UFW - NFTables
+
+- Aprender coceitos sobre o Iptables
+	iptables -t filter -A INPUT -s 0/0 -d 127.0.0.1 -j ACCEPT
+	iptables -t filter -A OUTPUT -s 127.0.0.1 -d 0/0 -j ACCEPT
+
+
+- Configurar os Scripts de firewall
+
+importar o ficheiro firewall 
+
+entrar de da pasta firewall e copiar o ficheiro firewall
+	cp firewall /etc/init.d/
+	cp firewall.service /etc/systemd/system 
+	mkdir /etc/firewall
+		cp rules /etc/firewall
+		
+	chmod 770 /etc/firewall/rules
+	chmod 770 /etc/init.d/firewall
+
+	
+	systemctl daemon-reload
+	systemctl enable firewall.service
+
+editar arquivo de firewall
+	vim /etc/firewall/rules
+
+fazer o teste da firewall limpando tudo
+	iptables -F 
+	iptables -t nat -F 
+	iptables -t mangle -F 
+
+vericar se realmente estão limpas
+	iptables -t filter -L
+	
+agora executar o firewall
+	systemctl start firewall.service
+	
+Validar novamente:
+	iptables -t filter -L	
+
+- Realizar os teste de funcionamento
+
+
